@@ -155,6 +155,8 @@ stdData = grouped.std()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','
 stdData.insert(0,'type','std')
 calculatedData = pd.concat([calculatedData, stdData])
 
+calculatedData.to_csv('timedata/calculatedValues.csv',sep=';',decimal=',')
+
 # u1 - hist
 plt.figure(figsize=(14,11))
 for i in range(0,4,1):
