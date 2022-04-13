@@ -156,6 +156,7 @@ stdData.insert(0,'type','std')
 calculatedData = pd.concat([calculatedData, stdData])
 
 calculatedData.to_csv('timedata/calculatedValues.csv',sep=',',decimal='.')
+calculatedData.to_csv('timedata/calculatedValuesHU.csv',sep=';',decimal=',')
 
 # u1 - hist
 plt.figure(figsize=(14,11))
