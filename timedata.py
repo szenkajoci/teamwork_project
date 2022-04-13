@@ -92,6 +92,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$t$')
     plt.ylabel(r'$\overline{u}_1$')
     plt.legend()
+plt.savefig('timedata/magn_u1.png', bbox_inches='tight')
 
 # u2
 plt.figure(figsize=(14,11))
@@ -116,6 +117,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$t$')
     plt.ylabel(r'$\overline{u}_2$')
     plt.legend()
+plt.savefig('timedata/magn_u2.png', bbox_inches='tight')
 
 # u3
 plt.figure(figsize=(14,11))
@@ -140,6 +142,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$t$')
     plt.ylabel(r'$\overline{u}_3$')
     plt.legend()
+plt.savefig('timedata/magn_u3.png', bbox_inches='tight')
 
 # calculated mean and std values
 grouped = measuredData.groupby(['height','coriolis','profile'])
@@ -175,6 +178,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$\overline{u}_1$')
     plt.ylabel(r'Frequency')
     plt.legend()
+plt.savefig('timedata/hist_u1.png', bbox_inches='tight')
     
 # u2 - hist
 plt.figure(figsize=(14,11))
@@ -199,6 +203,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$\overline{u}_2$')
     plt.ylabel(r'Frequency')
     plt.legend()
+plt.savefig('timedata/hist_u2.png', bbox_inches='tight')
     
 # u3 - hist
 plt.figure(figsize=(14,11))
@@ -223,6 +228,7 @@ for i in range(0,4,1):
     plt.xlabel(r'$\overline{u}_3$')
     plt.ylabel(r'Frequency')
     plt.legend()
+plt.savefig('timedata/hist_u3.png', bbox_inches='tight')
     
 # u1 - fft
 plt.figure(figsize=(14,11))
@@ -233,36 +239,37 @@ for i in range(0,4,1):
 
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp1 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")]['u1']),columns=['magn'])
-        # dftemp1['magn'] = abs(dftemp1['magn']).rolling(10,min_periods=1).mean()
         dftemp1['magn'] = abs(dftemp1['magn'])
-        dftemp1 = dftemp1.iloc[0:int(len(dftemp1)/2)]
-        dftemp1['freq'] = np.arange(0,len(dftemp1))/(len(dftemp1)*8*2)
+        dftemp1 = dftemp1.iloc[1:int(len(dftemp1)/2)]
+        dftemp1['magn'] = dftemp1['magn'].rolling(10,min_periods=1).mean()
+        dftemp1['freq'] = np.arange(1,len(dftemp1)+1)/((len(dftemp1)+1)*8*2)
         plt.loglog(dftemp1['freq'], dftemp1['magn'], 'C9-', label = 'Neutral with Coriolis')
     if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp2 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")]['u1']),columns=['magn'])
-        # dftemp2['magn'] = abs(dftemp2['magn']).rolling(10,min_periods=1).mean()
         dftemp2['magn'] = abs(dftemp2['magn'])
-        dftemp2 = dftemp2.iloc[0:int(len(dftemp2)/2)]
-        dftemp2['freq'] = np.arange(0,len(dftemp2))/(len(dftemp2)*8*2)
+        dftemp2 = dftemp2.iloc[1:int(len(dftemp2)/2)]
+        dftemp2['magn'] = dftemp2['magn'].rolling(10,min_periods=1).mean()
+        dftemp2['freq'] = np.arange(1,len(dftemp2)+1)/((len(dftemp2)+1)*8*2)
         plt.loglog(dftemp2['freq'], dftemp2['magn'], 'C9:', label = 'Neutral without Coriolis')
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp3 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")]['u1']),columns=['magn'])
-        # dftemp3['magn'] = abs(dftemp3['magn']).rolling(10,min_periods=1).mean()
         dftemp3['magn'] = abs(dftemp3['magn'])
-        dftemp3 = dftemp3.iloc[0:int(len(dftemp3)/2)]
-        dftemp3['freq'] = np.arange(0,len(dftemp3))/(len(dftemp3)*8*2)
+        dftemp3 = dftemp3.iloc[1:int(len(dftemp3)/2)]
+        dftemp3['magn'] = dftemp3['magn'].rolling(10,min_periods=1).mean()
+        dftemp3['freq'] = np.arange(1,len(dftemp3)+1)/((len(dftemp3)+1)*8*2)
         plt.loglog(dftemp3['freq'], dftemp3['magn'], 'C3-', label = 'Stable with Coriolis')
     if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp4 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")]['u1']),columns=['magn'])
-        # dftemp4['magn'] = abs(dftemp4['magn']).rolling(10,min_periods=1).mean()
         dftemp4['magn'] = abs(dftemp4['magn'])
-        dftemp4 = dftemp4.iloc[0:int(len(dftemp4)/2)]
-        dftemp4['freq'] = np.arange(0,len(dftemp4))/(len(dftemp4)*8*2)
+        dftemp4 = dftemp4.iloc[1:int(len(dftemp4)/2)]
+        dftemp4['magn'] = dftemp4['magn'].rolling(10,min_periods=1).mean()
+        dftemp4['freq'] = np.arange(1,len(dftemp4)+1)/((len(dftemp4)+1)*8*2)
         plt.loglog(dftemp4['freq'], dftemp4['magn'], 'C3:', label = 'Stable without Coriolis')
     plt.title('1st point velocity FFT')
     plt.xlabel(r'Frequency')
     plt.ylabel(r'PSD')
     plt.legend()
+plt.savefig('timedata/fft_u1.png', bbox_inches='tight')
       
 # u2 - fft
 plt.figure(figsize=(14,11))
@@ -273,28 +280,37 @@ for i in range(0,4,1):
     
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp1 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")]['u2']),columns=['magn'])
-        dftemp1['magn'] = abs(dftemp1['magn']).rolling(10,min_periods=1).mean()
-        dftemp1['freq'] = np.arange(0,len(dftemp1)*0.125,0.125)
-        plt.plot(dftemp1['freq'], dftemp1['magn'], 'C9-', label = 'Neutral with Coriolis')
-    if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")].shape[0]!=0:    
+        dftemp1['magn'] = abs(dftemp1['magn'])
+        dftemp1 = dftemp1.iloc[1:int(len(dftemp1)/2)]
+        dftemp1['magn'] = dftemp1['magn'].rolling(10,min_periods=1).mean()
+        dftemp1['freq'] = np.arange(1,len(dftemp1)+1)/((len(dftemp1)+1)*8*2)
+        plt.loglog(dftemp1['freq'], dftemp1['magn'], 'C9-', label = 'Neutral with Coriolis')
+    if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp2 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")]['u2']),columns=['magn'])
-        dftemp2['magn'] = abs(dftemp2['magn']).rolling(10,min_periods=1).mean()
-        dftemp2['freq'] = np.arange(0,len(dftemp2)*0.125,0.125)
-        plt.plot(dftemp2['freq'], dftemp2['magn'], 'C9:', label = 'Neutral without Coriolis')
+        dftemp2['magn'] = abs(dftemp2['magn'])
+        dftemp2 = dftemp2.iloc[1:int(len(dftemp2)/2)]
+        dftemp2['magn'] = dftemp2['magn'].rolling(10,min_periods=1).mean()
+        dftemp2['freq'] = np.arange(1,len(dftemp2)+1)/((len(dftemp2)+1)*8*2)
+        plt.loglog(dftemp2['freq'], dftemp2['magn'], 'C9:', label = 'Neutral without Coriolis')
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp3 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")]['u2']),columns=['magn'])
-        dftemp3['magn'] = abs(dftemp3['magn']).rolling(10,min_periods=1).mean()
-        dftemp3['freq'] = np.arange(0,len(dftemp3)*0.125,0.125)
-        plt.plot(dftemp3['freq'], dftemp3['magn'], 'C3-', label = 'Stable with Coriolis')
+        dftemp3['magn'] = abs(dftemp3['magn'])
+        dftemp3 = dftemp3.iloc[1:int(len(dftemp3)/2)]
+        dftemp3['magn'] = dftemp3['magn'].rolling(10,min_periods=1).mean()
+        dftemp3['freq'] = np.arange(1,len(dftemp3)+1)/((len(dftemp3)+1)*8*2)
+        plt.loglog(dftemp3['freq'], dftemp3['magn'], 'C3-', label = 'Stable with Coriolis')
     if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp4 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")]['u2']),columns=['magn'])
-        dftemp4['magn'] = abs(dftemp4['magn']).rolling(10,min_periods=1).mean()
-        dftemp4['freq'] = np.arange(0,len(dftemp4)*0.125,0.125)
-        plt.plot(dftemp4['freq'], dftemp4['magn'], 'C3:', label = 'Stable without Coriolis')
+        dftemp4['magn'] = abs(dftemp4['magn'])
+        dftemp4 = dftemp4.iloc[1:int(len(dftemp4)/2)]
+        dftemp4['magn'] = dftemp4['magn'].rolling(10,min_periods=1).mean()
+        dftemp4['freq'] = np.arange(1,len(dftemp4)+1)/((len(dftemp4)+1)*8*2)
+        plt.loglog(dftemp4['freq'], dftemp4['magn'], 'C3:', label = 'Stable without Coriolis')
     plt.title('2nd point velocity FFT')
     plt.xlabel(r'Frequency')
     plt.ylabel(r'PSD')
     plt.legend()
+plt.savefig('timedata/fft_u2.png', bbox_inches='tight')
       
 # u3 - fft
 plt.figure(figsize=(14,11))
@@ -305,26 +321,35 @@ for i in range(0,4,1):
     
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp1 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="neutral")]['u3']),columns=['magn'])
-        dftemp1['magn'] = abs(dftemp1['magn']).rolling(10,min_periods=1).mean()
-        dftemp1['freq'] = np.arange(0,len(dftemp1)*0.125,0.125)
+        dftemp1['magn'] = abs(dftemp1['magn'])
+        dftemp1 = dftemp1.iloc[1:int(len(dftemp1)/2)]
+        dftemp1['magn'] = dftemp1['magn'].rolling(10,min_periods=1).mean()
+        dftemp1['freq'] = np.arange(1,len(dftemp1)+1)/((len(dftemp1)+1)*8*2)
         plt.loglog(dftemp1['freq'], dftemp1['magn'], 'C9-', label = 'Neutral with Coriolis')
     if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")].shape[0]!=0:
         dftemp2 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="neutral")]['u3']),columns=['magn'])
-        dftemp2['magn'] = abs(dftemp2['magn']).rolling(10,min_periods=1).mean()
-        dftemp2['freq'] = np.arange(0,len(dftemp2)*0.125,0.125)
+        dftemp2['magn'] = abs(dftemp2['magn'])
+        dftemp2 = dftemp2.iloc[1:int(len(dftemp2)/2)]
+        dftemp2['magn'] = dftemp2['magn'].rolling(10,min_periods=1).mean()
+        dftemp2['freq'] = np.arange(1,len(dftemp2)+1)/((len(dftemp2)+1)*8*2)
         plt.loglog(dftemp2['freq'], dftemp2['magn'], 'C9:', label = 'Neutral without Coriolis')
     if dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp3 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==True) & (dftemp['profile']=="stable")]['u3']),columns=['magn'])
-        dftemp3['magn'] = abs(dftemp3['magn']).rolling(10,min_periods=1).mean()
-        dftemp3['freq'] = np.arange(0,len(dftemp3)*0.125,0.125)
+        dftemp3['magn'] = abs(dftemp3['magn'])
+        dftemp3 = dftemp3.iloc[1:int(len(dftemp3)/2)]
+        dftemp3['magn'] = dftemp3['magn'].rolling(10,min_periods=1).mean()
+        dftemp3['freq'] = np.arange(1,len(dftemp3)+1)/((len(dftemp3)+1)*8*2)
         plt.loglog(dftemp3['freq'], dftemp3['magn'], 'C3-', label = 'Stable with Coriolis')
     if dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")].shape[0]!=0:
         dftemp4 = pd.DataFrame(np.fft.fft(dftemp[(dftemp['coriolis']==False) & (dftemp['profile']=="stable")]['u3']),columns=['magn'])
-        dftemp4['magn'] = abs(dftemp4['magn']).rolling(10,min_periods=1).mean()
-        dftemp4['freq'] = np.arange(0,len(dftemp4)*0.125,0.125)
+        dftemp4['magn'] = abs(dftemp4['magn'])
+        dftemp4 = dftemp4.iloc[1:int(len(dftemp4)/2)]
+        dftemp4['magn'] = dftemp4['magn'].rolling(10,min_periods=1).mean()
+        dftemp4['freq'] = np.arange(1,len(dftemp4)+1)/((len(dftemp4)+1)*8*2)
         plt.loglog(dftemp4['freq'], dftemp4['magn'], 'C3:', label = 'Stable without Coriolis')
     plt.title('3rd point velocity FFT')
     plt.xlabel(r'Frequency')
     plt.ylabel(r'PSD')
     plt.legend()
+plt.savefig('timedata/fft_u3.png', bbox_inches='tight')
       
