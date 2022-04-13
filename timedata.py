@@ -63,6 +63,7 @@ for height in heightCase:
                 df['u1'] = np.sqrt(np.power(df['vx1'], 2)+np.power(df['vy1'], 2)+np.power(df['vz1'], 2))
                 df['u2'] = np.sqrt(np.power(df['vx2'], 2)+np.power(df['vy2'], 2)+np.power(df['vz2'], 2))
                 df['u3'] = np.sqrt(np.power(df['vx3'], 2)+np.power(df['vy3'], 2)+np.power(df['vz3'], 2))
+                df['part'] = [1 if i<len(df)/2 else 2 for i in range(len(df))]
                 
                 measuredData = pd.concat([measuredData,df])
             
@@ -356,3 +357,16 @@ for i in range(0,4,1):
     plt.legend()
 plt.savefig('timedata/fft_u3.png', bbox_inches='tight')
       
+# calculated halfed mean and std values
+grouped = measuredData.groupby(['height','coriolis','profile'])
+
+meanData = grouped.mean()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
+meanData.insert(0,'type','mean')
+calculatedData = pd.concat([calculatedData, meanData])
+
+stdData = grouped.std()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
+stdData.insert(0,'type','std')
+calculatedData = pd.concat([calculatedData, stdData])
+
+calculatedData.to_csv('timedata/calculatedValues.csv',sep=',',decimal='.')
+calculatedData.to_csv('timedata/calculatedValuesHU.csv',sep=';',decimal=',')
