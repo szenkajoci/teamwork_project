@@ -32,6 +32,7 @@ points = {
 
 measuredData = pd.DataFrame()
 calculatedData = pd.DataFrame()
+calculatedData2 = pd.DataFrame()
 
 for height in heightCase:
     
@@ -358,15 +359,15 @@ for i in range(0,4,1):
 plt.savefig('timedata/fft_u3.png', bbox_inches='tight')
       
 # calculated halfed mean and std values
-grouped = measuredData.groupby(['height','coriolis','profile'])
+grouped2 = measuredData.groupby(['height','coriolis','profile','part'])
 
-meanData = grouped.mean()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
-meanData.insert(0,'type','mean')
-calculatedData = pd.concat([calculatedData, meanData])
+meanData2 = grouped2.mean()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
+meanData2.insert(0,'type','mean')
+calculatedData2 = pd.concat([calculatedData2, meanData2])
 
-stdData = grouped.std()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
-stdData.insert(0,'type','std')
-calculatedData = pd.concat([calculatedData, stdData])
+stdData2 = grouped2.std()[['vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','u1', 'u2', 'u3']]
+stdData2.insert(0,'type','std')
+calculatedData2 = pd.concat([calculatedData2, stdData2])
 
-calculatedData.to_csv('timedata/calculatedValues.csv',sep=',',decimal='.')
-calculatedData.to_csv('timedata/calculatedValuesHU.csv',sep=';',decimal=',')
+calculatedData2.to_csv('timedata/calculatedValuesSeprated.csv',sep=',',decimal='.')
+calculatedData2.to_csv('timedata/calculatedValuesSepratedHU.csv',sep=';',decimal=',')
