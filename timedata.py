@@ -45,9 +45,9 @@ for height in heightCase:
             files = files[files.str.endswith('.out')]
             files = files.reset_index(drop=True)
             
-            print(files[0])
             
             if files.size>0:
+                print(files[0])
                 source = sourcePath + "/" + files[0]
                 # df = pd.read_csv(source, sep=' ', skiprows = 3, header=None, names = ['TimeStep','vx1','vx2','vx3','vy1','vy2','vy3','vz1','vz2','vz3','flow-time'])
 
