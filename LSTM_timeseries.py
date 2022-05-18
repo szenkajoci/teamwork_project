@@ -73,13 +73,23 @@ for height in heightCase:
             else:
                 print('In ' + sourcePath + ' no data file can be found!\n')
                 
-training_set = measuredData[(measuredData['height']=='01_flat') & (measuredData['coriolis']==True) & (measuredData['profile']=='stable')][['u1']].values
+training_set = measuredData[(measuredData['height']=='01_flat') & (measuredData['coriolis']==True) & (measuredData['profile']=='stable')][['u1']]
 
-#preprocessing
+training_set = training_set[training_set.index%4==1].values
+
+# test heatmap
+
+plt.pcolormesh(np.cov(training_set[:200],rowvar='true'), cmap = 'summer')
+plt.title('Heatmap for the velocity magnitude')
+plt.show()
+
+
+# preprocessing
 
 from sklearn.preprocessing import MinMaxScaler
 
 train_size, val_size = 0.5, 0
+windows_size = 50
 
 num_time_steps = training_set.shape[0]
 num_train, num_val = (
@@ -100,8 +110,8 @@ test_array = training_set_scaled[(num_train + num_val) :]
 
 X_train = []
 y_train = []
-for i in range(60, train_array.shape[0]):
-    X_train.append(train_array[i-60:i, 0])
+for i in range(windows_size, train_array.shape[0]):
+    X_train.append(train_array[i-windows_size:i, 0])
     y_train.append(train_array[i, 0])
 X_train, y_train = np.array(X_train), np.array(y_train)
 
@@ -116,30 +126,27 @@ from keras.layers import Dropout
 
 regressor = Sequential()
 
-regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 1)))
-regressor.add(Dropout(0.2))
+regressor.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1], 1)))
+regressor.add(Dropout(0.4))
 
-regressor.add(LSTM(units = 50, return_sequences = True))
-regressor.add(Dropout(0.25))
-
-regressor.add(LSTM(units = 50))
-regressor.add(Dropout(0.25))
+regressor.add(LSTM(units = 100))
+regressor.add(Dropout(0.4))
 
 regressor.add(Dense(units = 1))
 
-regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
 
-regressor.fit(X_train, y_train, epochs = 2, batch_size = 32)
+regressor.fit(X_train, y_train, epochs = 5, batch_size = 32)
 
 regressor.summary()
 
 #test
 
 dataset_total = np.concatenate((train_array, test_array), axis = 0)
-inputs = dataset_total[len(dataset_total) - len(test_array) - 60:]
+inputs = dataset_total[len(dataset_total) - len(test_array) - windows_size:]
 X_test = []
-for i in range(60, inputs.shape[0]):
-    X_test.append(inputs[i-60:i, 0])
+for i in range(windows_size, inputs.shape[0]):
+    X_test.append(inputs[i-windows_size:i, 0])
 X_test = np.array(X_test)
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
@@ -147,40 +154,51 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 predicted = regressor.predict(X_test)
 predicted_transformed = sc.inverse_transform(predicted)
 
-plt.figure(figsize=(14,11))
+#plt.figure(figsize=(14,11))
 plt.plot(test_array_true, color = 'black', label = 'Measured')
 plt.plot(predicted_transformed, color = 'green', label = 'Predicted')
-plt.title('Time series Prediction')
+plt.title('Time series prediction - test data')
 plt.xlabel('Time')
 plt.ylabel(r'$u_1$')
 plt.legend()
 plt.show()
+plt.savefig('LSTM_timedata/test_predicted.png', bbox_inches='tight')
 
 
 predicted2 = regressor.predict(X_train)
 predicted_transformed2 = sc.inverse_transform(predicted2)
 
-plt.plot(train_array_true, color = 'black', label = 'Measured')
+plt.plot(train_array_true[windows_size:], color = 'black', label = 'Measured')
 plt.plot(predicted_transformed2, color = 'green', label = 'Predicted')
-plt.title('Time series Prediction')
+plt.title('Time series prediction - train data')
 plt.xlabel('Time')
 plt.ylabel(r'$u_1$')
 plt.legend()
 plt.show()
+plt.savefig('LSTM_timedata/train_predicted.png', bbox_inches='tight')
 
 
 n = 1000
-inputs = dataset_total[len(dataset_total) - 60:]
+inputs = dataset_total[len(dataset_total) - windows_size:]
 for j in range(n):
     X_test = []
-    for i in range(60, inputs.shape[0]+1):
-        X_test.append(inputs[i-60:i, 0])
+    for i in range(windows_size, inputs.shape[0]+1):
+        X_test.append(inputs[i-windows_size:i, 0])
     X_test = np.array(X_test)
     X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
     
-    predicted = regressor.predict(X_test[-1])
+    predicted = regressor.predict(X_test[-1].reshape(1,windows_size,1)) #dimension?
     
-    inputs = np.concatenate((inputs, predicted[0].reshape(1,1)), axis = 0)
+    inputs = np.concatenate((inputs, predicted), axis = 0)
     
-    
+pd.DataFrame(X_test.reshape(X_test.shape[0],X_test.shape[1])).to_csv('LSTM_timedata/predictionHU.csv',sep=';',decimal=',')
+pd.DataFrame(X_test.reshape(X_test.shape[0],X_test.shape[1])).to_csv('LSTM_timedata/prediction.csv',sep=',',decimal='.')
+
 inputs_transformed = sc.inverse_transform(inputs)
+
+plt.plot(inputs_transformed, color = 'green')
+plt.title('Time series prediction - recursive')
+plt.xlabel('Time')
+plt.ylabel(r'$u_1$')
+plt.show()
+plt.savefig('LSTM_timedata/recursive_prediction.png', bbox_inches='tight')
