@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 27 09:50:50 2022
-
 @author: szenkajozsef
 
 @source: https://machinelearningknowledge.ai/keras-lstm-layer-explained-for-beginners-with-example/
@@ -79,17 +77,25 @@ training_set = training_set[training_set.index%4==1].values
 
 # test heatmap
 
-plt.pcolormesh(np.cov(training_set[:200],rowvar='true'), cmap = 'summer')
+def histogram_intersection(p, q):
+    v = abs(min(p)-min(q))
+    return v
+
+corrcoeffs = pd.DataFrame(np.transpose(training_set[:500])).corr(method=histogram_intersection)
+corrcoeffs -= np.identity(500)
+
+plt.figure(figsize=(10,10))
+plt.pcolormesh(corrcoeffs*2)
 plt.title('Heatmap for the velocity magnitude')
 plt.show()
-
+plt.savefig('LSTM_timedata/heatmap.png', bbox_inches='tight')
 
 # preprocessing
 
 from sklearn.preprocessing import MinMaxScaler
 
-train_size, val_size = 0.5, 0
-windows_size = 50
+train_size, val_size = 0.6, 0.2
+windows_size = 200
 
 num_time_steps = training_set.shape[0]
 num_train, num_val = (
@@ -117,28 +123,39 @@ X_train, y_train = np.array(X_train), np.array(y_train)
 
 X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
 
+X_valid = []
+y_valid = []
+for i in range(windows_size, val_array.shape[0]):
+    X_valid.append(val_array[i-windows_size:i, 0])
+    y_valid.append(val_array[i, 0])
+X_valid, y_valid = np.array(X_valid), np.array(y_valid)
+
+X_valid = np.reshape(X_valid, (X_valid.shape[0], X_valid.shape[1], 1)) 
+
 # model
 
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
+from keras.layers import GRU
+from keras.layers import RNN
 from keras.layers import Dropout
 
 regressor = Sequential()
 
-regressor.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1], 1)))
+regressor.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1], 1), activation=None))
 regressor.add(Dropout(0.4))
 
-regressor.add(LSTM(units = 100))
+regressor.add(LSTM(units = 100, activation=None))
 regressor.add(Dropout(0.4))
 
 regressor.add(Dense(units = 1))
 
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
 
-regressor.fit(X_train, y_train, epochs = 5, batch_size = 32)
-
 regressor.summary()
+
+regressor.fit(X_train, y_train, epochs = 10, batch_size = 32, validation_data=(X_valid,y_valid))
 
 #test
 
@@ -150,11 +167,12 @@ for i in range(windows_size, inputs.shape[0]):
 X_test = np.array(X_test)
 X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
 
+regressor.reset_states()
 
 predicted = regressor.predict(X_test)
 predicted_transformed = sc.inverse_transform(predicted)
 
-#plt.figure(figsize=(14,11))
+plt.figure(figsize=(14,11))
 plt.plot(test_array_true, color = 'black', label = 'Measured')
 plt.plot(predicted_transformed, color = 'green', label = 'Predicted')
 plt.title('Time series prediction - test data')
@@ -164,10 +182,12 @@ plt.legend()
 plt.show()
 plt.savefig('LSTM_timedata/test_predicted.png', bbox_inches='tight')
 
+regressor.reset_states()
 
 predicted2 = regressor.predict(X_train)
 predicted_transformed2 = sc.inverse_transform(predicted2)
 
+plt.figure(figsize=(14,11))
 plt.plot(train_array_true[windows_size:], color = 'black', label = 'Measured')
 plt.plot(predicted_transformed2, color = 'green', label = 'Predicted')
 plt.title('Time series prediction - train data')
@@ -177,6 +197,7 @@ plt.legend()
 plt.show()
 plt.savefig('LSTM_timedata/train_predicted.png', bbox_inches='tight')
 
+regressor.reset_states()
 
 n = 1000
 inputs = dataset_total[len(dataset_total) - windows_size:]
